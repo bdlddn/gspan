@@ -28,7 +28,7 @@ from graph_data import GraphData
 
 min_support = 1
 input_data_path = './graph_simple.data'
-label_max = 100
+label_max = 10
 data_array = []
 freq_node_label = []
 freq_edge_label = []
@@ -56,6 +56,72 @@ def sort_and_relabel():
 	label1 = 0
 	lable2 = 0
 	tmp = 0
+	
+	# 数组中[i]=j表示排名第i的节点的标号是j
+	i = 0
+	while i < label_max - 1:
+		k = 0
+		label1 = rank_node_labels[i]
+		temp = label1
+		j = i + 1
+		while j < label_max:
+			label2 = rank_node_labels[j]
+			if freq_node_label[temp] < freq_node_label[label2]:
+				temp = label2
+				k = j
+			j += 1
+		if label1 != temp:
+			temp = rank_node_labels[k]
+			rank_node_labels[i] = rank_node_labels[k]
+			rank_node_labels[k] = temp
+		i += 1
+	
+	# 数组中[i]=j表示排名第i的边的标号是j
+	i = 0
+	while i < label_max - 1:
+		k = 0
+		label1 = rank_edge_labels[i]
+		temp = label1
+		j = 0
+		while j < label_max:
+			label2 = rank_edge_labels[j]
+			if freq_edge_label[temp] < freq_edge_label[label2]:
+				temp = label2
+				k = j
+			j += 1
+		if label1 != temp:
+			temp = rank_node_labels[k]
+			rank_node_labels[i] = rank_node_labels[k]
+			rank_node_labels[k] = temp
+		i += 1
+	
+	i = 0
+	while i < label_max:
+		node_labels_2_rank.append(-1)
+		edge_labels_2_rank.append(-1)
+		i += 1
+	
+	# 数组[i] = j表示标号为i的节点排名为j
+	i = 0
+	while i < label_max:
+		node_labels_2_rank[rank_edge_labels[i]] = i
+		i += 1
+	
+	# 数组[i] = j表示标号为i的边排名为j
+	i = 0
+	while i < label_max:
+		edge_labels_2_rank[rank_edge_labels[i]] = i
+		i += 1
+	# 输出看看结果
+	print(rank_node_labels)
+	print(rank_edge_labels)
+	print(node_labels_2_rank)
+	print(edge_labels_2_rank)
+	print('haha')
+	
+	
+	# 调用graph_data中的方法按照标号-排名进行重新排列
+				
 	
 
 
@@ -102,16 +168,18 @@ if __name__ == "__main__":
 			gd.get_edge_y().append(int(array[2]))
 	
 	#  看看graphdata存储是否正确
-	for gd in total_graph_data:
-		print(gd.print_graph_data())
-	print(freq_node_label)
-	print(freq_edge_label)
+	#~ for gd in total_graph_data:
+		#~ print(gd.print_graph_data())
+	#~ print(freq_node_label)
+	#~ print(freq_edge_label)
 	
 	# 移除graph_data中不频繁的边和点
 	for gd in total_graph_data:
 		gd.remove_infreq_nodes_and_edges(freq_node_label,
 			freq_edge_label, min_support)
 		#~ gd.print_graph_data()
+	#排序并重新标号
+	sort_and_relabel()
 	
 	
 	
