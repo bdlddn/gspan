@@ -27,6 +27,9 @@ import sys
 import pdb
 from graph_data import GraphData
 from graph import Graph
+from edge_freqency import EdgeFreqency
+from edge import Edge
+from graph_code import GraphCode
 
 min_support = 1
 input_data_path = './graph_simple.data'
@@ -140,27 +143,56 @@ def sort_and_relabel():
 		#~ print('----graph---end------')
 	#~ print(new_node_label_count)
 	#~ new_node_label_count = 0
-	i = 0
+	#~ i = 0
+	global new_node_label_count
+	global new_edge_label_count
 	for label in rank_node_labels:
 		if freq_node_label[int(label)] < min_support:
 			break
-		new_node_label_count = i # 全局变量只能赋值？
-		i += 1
+		new_node_label_count += 1 # 全局变量只能赋值？
+		#~ i += 1
 	
-	i = 0
+	#~ i = 0
 	for label in rank_edge_labels:
 		if freq_edge_label[int(label)] < min_support:
 			break
-		new_edge_label_count = i
-		i += 1
-	new_node_label_count += 1
-	new_edge_label_count += 1
+		new_edge_label_count += 1
+		#~ i += 1
+	#~ new_node_label_count += 1
+	#~ new_edge_label_count += 1
 	
 	#~ print('---new_node_num and new_edge_num---')
 	#~ print(new_node_label_count)
 	#~ print(new_edge_label_count)		
 	
-				
+def sub_mining(gc, next):
+	"""开始进行子图挖掘"""	
+	# 首先根据gc中的五元组来构造图
+	graph = Graph()
+	
+	i = 0
+	while i < next:
+		graph.get_node_labels().append(-1)
+		graph.get_edge_labels().append([])
+		graph.get_edge_nexts().append([])
+		i += 1
+	
+	i = 0
+	while i < len(gc.get_edge_seq()):
+		e = gc.get_edge_seq()[i]
+		id1 = e.ix
+		id2 = e.iy
+		graph.get_node_labels()[id1] = e.x
+		graph.get_node_labels()[id2] = e.y
+		graph.get_edge_labels()[id1].append(e.a)
+		graph.get_edge_labels()[id2].append(e.a)
+		graph.get_edge_nexts()[id1].append(id2)
+		graph.get_edge_nexts()[id2].append(id1)
+		i += 1
+	
+	#~ print('construct graph')
+	#~ graph.print_graph()
+	
 	
 def freq_graph_mining():
 	"""开始进行频繁模式挖掘"""
@@ -173,7 +205,59 @@ def freq_graph_mining():
 		g.construct_graph(gd)
 		#~ g.print_graph()
 		total_graph.append(g)
-	# 还没有验证正确性
+	# 还没有验证正确性 
+	#~ print('label_count node_count')
+	#~ print(new_node_label_count)
+	#~ print(new_edge_label_count)
+	ef = EdgeFreqency(new_node_label_count, new_edge_label_count)
+	#~ ef.print_edge()
+	i = 0
+	#~ j = 0
+	#~ k = 0
+	while i < new_node_label_count:
+		j = 0
+		while j < new_edge_label_count:
+			k = 0
+			while k < new_node_label_count:
+				for g in total_graph:
+					#~ pdb.set_trace()
+					if g.has_edge(i, j, k):
+						#~ pdb.set_trace()
+						ef.edge_freq_count[i][j][k] += 1
+					#~ print('hha')
+				k += 1
+			j += 1
+		i += 1
+	#~ print('hahah')
+	#~ print(ef)
+	ef.print_edge()
+	# 周六晚上看了一下，应该是对的
+	
+	i = 0 
+	while i < new_node_label_count:
+		j = 0
+		while j < new_edge_label_count:
+			k = 0
+			while k < new_node_label_count:
+				if ef.edge_freq_count[i][j][k] >= min_support:
+					gc = GraphCode()
+					edge = Edge(0, 1, i, j, k)
+					gc.get_edge_seq().append(edge)
+					
+					y = 0
+					for g in total_graph:
+						if g.has_edge(i, j, k):
+							gc.get_gs().append(y)
+						y += 1
+					sub_mining(gc, 2)
+					#~ print('gc')
+					#~ print(gc.get_edge_seq()[0].print_edge())
+					#~ print(gc.get_gs())
+				k += 1
+			j += 1
+		i += 1
+		#  没看是否正确
+
 
 if __name__ == "__main__":
 	#从文件读取数据到data_array数组

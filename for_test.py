@@ -94,9 +94,19 @@ if __name__ == '__main__':
 		#~ print('contains "1"')
 		#~ print(int(gd.get_node_labels()[2]))
 		
-	dog = Dog()
-	sy = [11,22]
-	dog.set_sy(sy)
-	dog.print_dog()
+	#~ dog = Dog()
+	#~ sy = [11,22]
+	#~ dog.set_sy(sy)
+	#~ dog.print_dog()
+	#~ a = '1'
+	#~ b = 1
+	#~ if int(a) == b:
+		#~ print('a == b')
+	#~ b = 1
+	#~ b = str(b)
+	#~ if a == b:
+		#~ print('a==b')
+	#~ print(b)
+	#~ print(a)
 
 		
