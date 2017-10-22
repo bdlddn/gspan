@@ -24,7 +24,9 @@
 
 '''主程序的入口'''
 import sys
+import pdb
 from graph_data import GraphData
+from graph import Graph
 
 min_support = 1
 input_data_path = './graph_simple.data'
@@ -36,7 +38,9 @@ total_graph_data = []
 input_new_graph = 't'
 input_vertice = 'v'
 input_edge = 'e'
-min_support = 1
+new_node_label_count = 0
+new_edge_label_count = 0
+#~ min_support = 1
 
 #~ def main(agrs):
 	#~ return 0
@@ -52,7 +56,12 @@ def sort_and_relabel():
 		rank_node_labels.append(i)
 		rank_edge_labels.append(i)
 		i += 1
-	
+	#~ print(rank_node_labels)
+	#~ print(rank_edge_labels)
+	#~ print('------freq-------')
+	#~ print(freq_node_label)
+	#~ print(freq_edge_label)
+	#~ print('----freq---end----')
 	label1 = 0
 	lable2 = 0
 	tmp = 0
@@ -72,8 +81,8 @@ def sort_and_relabel():
 			j += 1
 		if label1 != temp:
 			temp = rank_node_labels[k]
-			rank_node_labels[i] = rank_node_labels[k]
-			rank_node_labels[k] = temp
+			rank_node_labels[k] = rank_node_labels[i]
+			rank_node_labels[i] = temp
 		i += 1
 	
 	# 数组中[i]=j表示排名第i的边的标号是j
@@ -82,7 +91,7 @@ def sort_and_relabel():
 		k = 0
 		label1 = rank_edge_labels[i]
 		temp = label1
-		j = 0
+		j = i + 1
 		while j < label_max:
 			label2 = rank_edge_labels[j]
 			if freq_edge_label[temp] < freq_edge_label[label2]:
@@ -90,9 +99,9 @@ def sort_and_relabel():
 				k = j
 			j += 1
 		if label1 != temp:
-			temp = rank_node_labels[k]
-			rank_node_labels[i] = rank_node_labels[k]
-			rank_node_labels[k] = temp
+			temp = rank_edge_labels[k]
+			rank_edge_labels[k] = rank_edge_labels[i]
+			rank_edge_labels[i] = temp
 		i += 1
 	
 	i = 0
@@ -104,7 +113,7 @@ def sort_and_relabel():
 	# 数组[i] = j表示标号为i的节点排名为j
 	i = 0
 	while i < label_max:
-		node_labels_2_rank[rank_edge_labels[i]] = i
+		node_labels_2_rank[rank_node_labels[i]] = i
 		i += 1
 	
 	# 数组[i] = j表示标号为i的边排名为j
@@ -113,18 +122,58 @@ def sort_and_relabel():
 		edge_labels_2_rank[rank_edge_labels[i]] = i
 		i += 1
 	# 输出看看结果
-	print(rank_node_labels)
-	print(rank_edge_labels)
-	print(node_labels_2_rank)
-	print(edge_labels_2_rank)
-	print('haha')
+	#~ print('ranknodelabels and e,node2rank a e')
+	#~ print(rank_node_labels)
+	#~ print(rank_edge_labels)
+	#~ print(node_labels_2_rank)
+	#~ print(edge_labels_2_rank)
+	#~ print('-------end-----')
 	
 	
 	# 调用graph_data中的方法按照标号-排名进行重新排列
+	for gd in total_graph_data:
+		#~ print('---graph----')
+		#~ gd.print_graph_data()
+		#~ print('---after----')
+		gd.relabel_by_rank(node_labels_2_rank, edge_labels_2_rank)
+		#~ gd.print_graph_data()
+		#~ print('----graph---end------')
+	#~ print(new_node_label_count)
+	#~ new_node_label_count = 0
+	i = 0
+	for label in rank_node_labels:
+		if freq_node_label[int(label)] < min_support:
+			break
+		new_node_label_count = i # 全局变量只能赋值？
+		i += 1
+	
+	i = 0
+	for label in rank_edge_labels:
+		if freq_edge_label[int(label)] < min_support:
+			break
+		new_edge_label_count = i
+		i += 1
+	new_node_label_count += 1
+	new_edge_label_count += 1
+	
+	#~ print('---new_node_num and new_edge_num---')
+	#~ print(new_node_label_count)
+	#~ print(new_edge_label_count)		
+	
 				
 	
-
-
+def freq_graph_mining():
+	"""开始进行频繁模式挖掘"""
+	result_graph = []
+	total_graph = []
+	
+	
+	for gd in total_graph_data:
+		g = Graph()
+		g.construct_graph(gd)
+		#~ g.print_graph()
+		total_graph.append(g)
+	# 还没有验证正确性
 
 if __name__ == "__main__":
 	#从文件读取数据到data_array数组
@@ -180,6 +229,9 @@ if __name__ == "__main__":
 		#~ gd.print_graph_data()
 	#排序并重新标号
 	sort_and_relabel()
+	
+	#  进行子图挖掘
+	freq_graph_mining()
 	
 	
 	

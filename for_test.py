@@ -51,6 +51,7 @@ class Dog():
 	
 	def get_sy(self):
 		return self.sy
+	#~ def set_()
 	
 	def print_dog(self):
 		print(self.x)
@@ -79,18 +80,23 @@ if __name__ == '__main__':
 	#~ if b == None:
 		#~ print("none")
 	
-	gd = GraphData()
-	gd.get_node_labels().append('0')
-	gd.get_node_labels().append('1')
-	gd.get_node_labels().append('20')
+	#~ gd = GraphData()
+	#~ gd.get_node_labels().append('0')
+	#~ gd.get_node_labels().append('1')
+	#~ gd.get_node_labels().append('20')
 	
 	#~ if gd is not None:
 		#~ print(gd)
-	x = ''
-	if  not gd.get_node_labels() :
-		print('None')
-	if not '1' in gd.get_node_labels():
-		print('contains "1"')
-		print(int(gd.get_node_labels()[2]))
+	#~ x = ''
+	#~ if  not gd.get_node_labels() :
+		#~ print('None')
+	#~ if not '1' in gd.get_node_labels():
+		#~ print('contains "1"')
+		#~ print(int(gd.get_node_labels()[2]))
+		
+	dog = Dog()
+	sy = [11,22]
+	dog.set_sy(sy)
+	dog.print_dog()
 
 		

@@ -21,7 +21,7 @@
 #  MA 02110-1301, USA.
 #  
 #  
-
+import pdb
 
 class GraphData():
 	"""存储图的原始数据"""
@@ -80,7 +80,9 @@ class GraphData():
 	
 	def remove_infreq_nodes_and_edges(self, freq_node_label, 
 		freq_edge_label, min_support):
-		
+		#~ print('remove----')
+		#~ self.print_graph_data()
+		#~ pdb.set_trace()
 		i = 0
 		for node_label in self.node_labels:
 			label = int(node_label)
@@ -92,7 +94,7 @@ class GraphData():
 			i += 1
 		
 		i = 0
-		for edge_label in self.node_labels:
+		for edge_label in self.edge_labels:
 			#~ print(edge_label)
 			label = int(edge_label)
 			if freq_edge_label[label] < min_support:
@@ -103,10 +105,49 @@ class GraphData():
 			x = self.edge_x[i]
 			y = self.edge_y[i]
 			if not self.node_visibles[x] or not self.node_visibles[y]:
+				#~ print('make false')
+				#~ print(label)
+				#~ print(freq_edge_label[label])
 				self.edge_visibles[i] = False
 			i += 1
 			
-	
+	def relabel_by_rank(self, node_labels_2_rank, edge_labels_2_rank):
+		"""按照数组进行重新标号"""
+		lenth = len(self.node_labels)
+		old_id_2_new = []
+		
+		i = 0
+		while i < lenth:
+			old_id_2_new.append(-1)
+			i += 1
+			
+		count = 0
+		i = 0
+		while i < lenth:
+			#~ print('----o-n----')
+			label = int(self.node_labels[i])
+			
+			if self.node_visibles[i]:
+				self.node_labels[i] = str(node_labels_2_rank[label])
+				old_id_2_new[i] = count
+				count += 1
+			i += 1
+		
+		#~ print('--old--to--new')
+		#~ print(old_id_2_new)
+		#~ count = 0
+		lenth = len(self.edge_labels)
+		i = 0
+		while i < lenth:
+			label = int(self.edge_labels[i])
+			if self.edge_visibles[i]:
+				self.edge_labels[i] = str(node_labels_2_rank[label])
+				self.edge_x[i] = old_id_2_new[self.edge_x[i]]
+				self.edge_y[i] = old_id_2_new[self.edge_y[i]]
+			i += 1
+		
+				
+				
 	
 
 
