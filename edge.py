@@ -21,8 +21,6 @@
 #  MA 02110-1301, USA.
 #  
 #  
-#~ from graph_data import GraphData
-import pdb
 
 class Edge():
 	
@@ -46,10 +44,11 @@ class Edge():
 			if array1[i] < array2[i]:
 				result = self.edge_smaller
 				break
-			elif array[i] > array2[i]:
+			elif array1[i] > array2[i]:
 				result = self.edge_larger
 				break
 			else:
+				i += 1
 				continue
 		
 		return result 

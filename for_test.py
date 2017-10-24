@@ -54,8 +54,18 @@ class Dog():
 	#~ def set_()
 	
 	def print_dog(self):
-		print(self.x)
-		print(self.sy)
+		return 
+		#~ print(self.x)
+		#~ self.hahah()
+		
+		#~ print(self.sy)
+	
+	def hahah(self,i):
+		if i > 10:
+			return
+		print('hahah')
+		
+		#~ hahah(i+1)
 	
 
 if __name__ == '__main__':
@@ -95,6 +105,8 @@ if __name__ == '__main__':
 		#~ print(int(gd.get_node_labels()[2]))
 		
 	#~ dog = Dog()
+	#~ dog.print_dog()
+	#~ dog.hahah(1)
 	#~ sy = [11,22]
 	#~ dog.set_sy(sy)
 	#~ dog.print_dog()
@@ -108,5 +120,22 @@ if __name__ == '__main__':
 		#~ print('a==b')
 	#~ print(b)
 	#~ print(a)
-
-		
+	#~ a = 1
+	#~ b = '2'
+	#~ if b > a:
+		#~ print('haé´ha')
+	#~ dog_1 = Dog()
+	#~ map_1 = {'a' : 1}
+	#~ map_1['b'] = 2
+	#~ map_1[dog_1] = 3
+	#~ print(map_1[dog_1])
+	#~ a = 'b'
+	#~ b = 'a'
+	#~ c = 'b'
+	#~ if c is not b:
+		#~ print ('c!=b')
+	#~ if c is a:
+		#~ print('c = a')
+	#~ for i in range(0,10):
+		#~ print(i)
+	#~ for

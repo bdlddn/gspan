@@ -30,10 +30,14 @@ from graph import Graph
 from edge_freqency import EdgeFreqency
 from edge import Edge
 from graph_code import GraphCode
+from dfs_code_traveler import DfsCodeTraveler
+from sub_child_traveler import SubChildTraveler
+import datetime
 
-min_support = 1
-input_data_path = './graph_simple.data'
-label_max = 10
+#  定义全局变量
+min_support = 300
+input_data_path = './graph.data'
+label_max = 100
 data_array = []
 freq_node_label = []
 freq_edge_label = []
@@ -43,10 +47,10 @@ input_vertice = 'v'
 input_edge = 'e'
 new_node_label_count = 0
 new_edge_label_count = 0
-#~ min_support = 1
+result_graph = []
+total_graph = []
 
-#~ def main(agrs):
-	#~ return 0
+
 def sort_and_relabel():
 	"""进行排序和重新编号"""
 	rank_node_labels = []
@@ -59,12 +63,7 @@ def sort_and_relabel():
 		rank_node_labels.append(i)
 		rank_edge_labels.append(i)
 		i += 1
-	#~ print(rank_node_labels)
-	#~ print(rank_edge_labels)
-	#~ print('------freq-------')
-	#~ print(freq_node_label)
-	#~ print(freq_edge_label)
-	#~ print('----freq---end----')
+	
 	label1 = 0
 	lable2 = 0
 	tmp = 0
@@ -124,54 +123,31 @@ def sort_and_relabel():
 	while i < label_max:
 		edge_labels_2_rank[rank_edge_labels[i]] = i
 		i += 1
-	# 输出看看结果
-	#~ print('ranknodelabels and e,node2rank a e')
-	#~ print(rank_node_labels)
-	#~ print(rank_edge_labels)
-	#~ print(node_labels_2_rank)
-	#~ print(edge_labels_2_rank)
-	#~ print('-------end-----')
-	
 	
 	# 调用graph_data中的方法按照标号-排名进行重新排列
 	for gd in total_graph_data:
-		#~ print('---graph----')
-		#~ gd.print_graph_data()
-		#~ print('---after----')
 		gd.relabel_by_rank(node_labels_2_rank, edge_labels_2_rank)
-		#~ gd.print_graph_data()
-		#~ print('----graph---end------')
-	#~ print(new_node_label_count)
-	#~ new_node_label_count = 0
-	#~ i = 0
+	
 	global new_node_label_count
 	global new_edge_label_count
 	for label in rank_node_labels:
 		if freq_node_label[int(label)] < min_support:
 			break
 		new_node_label_count += 1 # 全局变量只能赋值？
-		#~ i += 1
 	
-	#~ i = 0
 	for label in rank_edge_labels:
 		if freq_edge_label[int(label)] < min_support:
 			break
 		new_edge_label_count += 1
-		#~ i += 1
-	#~ new_node_label_count += 1
-	#~ new_edge_label_count += 1
+
 	
-	#~ print('---new_node_num and new_edge_num---')
-	#~ print(new_node_label_count)
-	#~ print(new_edge_label_count)		
-	
-def sub_mining(gc, next):
+def sub_mining(gc, next_):
 	"""开始进行子图挖掘"""	
 	# 首先根据gc中的五元组来构造图
 	graph = Graph()
 	
 	i = 0
-	while i < next:
+	while i < next_:
 		graph.get_node_labels().append(-1)
 		graph.get_edge_labels().append([])
 		graph.get_edge_nexts().append([])
@@ -190,48 +166,72 @@ def sub_mining(gc, next):
 		graph.get_edge_nexts()[id2].append(id1)
 		i += 1
 	
-	#~ print('construct graph')
-	#~ graph.print_graph()
+	# 看看是否是最小dfs—code
+	d_traveler = DfsCodeTraveler(gc.get_edge_seq(), graph)
+	d_traveler.traveler()
+	if not d_traveler.is_min:
+		return
+	result_graph.append(graph)
+	
+	# 进行子图挖掘
+	g_ids = []
+	edge_2_gid = {}
+	for i in range(0,len(gc.get_gs())):
+		id_ = gc.get_gs()[i]
+		sct = SubChildTraveler(gc.get_edge_seq(), total_graph[id_])
+		sct.traveler()
+		edge_array = sct.child_edge
+		for e2 in edge_array:
+			if not edge_2_gid.has_key(e2):
+				gids = []
+			else:
+				gids = edge_2_gid[e2]
+			gids.append(id_)
+			edge_2_gid[e2] = gids
+	
+	for key, value in edge_2_gid.items():
+		e1 = key
+		gids = value
+		if len(gids) < min_support:
+			continue
+		ngc = GraphCode()
+		for edge in gc.get_edge_seq():
+			ngc.get_edge_seq().append(edge)
+		ngc.get_edge_seq().append(e1)
+		for gid in gids:
+			ngc.get_gs().append(gid)
+		if e1.iy == next_:
+			sub_mining(ngc, next_ + 1)
+		else:
+			sub_mining(ngc, next_)
+		
+	
 	
 	
 def freq_graph_mining():
 	"""开始进行频繁模式挖掘"""
-	result_graph = []
-	total_graph = []
+	
 	
 	
 	for gd in total_graph_data:
 		g = Graph()
 		g.construct_graph(gd)
-		#~ g.print_graph()
 		total_graph.append(g)
-	# 还没有验证正确性 
-	#~ print('label_count node_count')
-	#~ print(new_node_label_count)
-	#~ print(new_edge_label_count)
+	
 	ef = EdgeFreqency(new_node_label_count, new_edge_label_count)
-	#~ ef.print_edge()
 	i = 0
-	#~ j = 0
-	#~ k = 0
 	while i < new_node_label_count:
 		j = 0
 		while j < new_edge_label_count:
 			k = 0
 			while k < new_node_label_count:
 				for g in total_graph:
-					#~ pdb.set_trace()
 					if g.has_edge(i, j, k):
-						#~ pdb.set_trace()
 						ef.edge_freq_count[i][j][k] += 1
-					#~ print('hha')
 				k += 1
 			j += 1
 		i += 1
-	#~ print('hahah')
-	#~ print(ef)
-	ef.print_edge()
-	# 周六晚上看了一下，应该是对的
+	#~ ef.print_edge()
 	
 	i = 0 
 	while i < new_node_label_count:
@@ -250,23 +250,21 @@ def freq_graph_mining():
 							gc.get_gs().append(y)
 						y += 1
 					sub_mining(gc, 2)
-					#~ print('gc')
-					#~ print(gc.get_edge_seq()[0].print_edge())
-					#~ print(gc.get_gs())
 				k += 1
 			j += 1
 		i += 1
-		#  没看是否正确
+		
+
 
 
 if __name__ == "__main__":
 	#从文件读取数据到data_array数组
-	#~ data_array = []
 	with open(input_data_path) as file_object:
-		#~ contents = file_object.read()
-		#~ print(contents)
 		for line in file_object:
 			data_array.append(line.replace('\n','').split(' '))
+	
+	#  设置开始时间
+	start_time = datetime.datetime.now()
 	
 	# 统计每一个边和点的出现次数，并将data_array中的数据加入到data_graph中
 	i = 0
@@ -274,7 +272,6 @@ if __name__ == "__main__":
 		freq_edge_label.append(0)
 		freq_node_label.append(0)
 		i += 1
-	#~ print(freq_edge_label)
 	
 	gd = GraphData()
 	
@@ -292,7 +289,6 @@ if __name__ == "__main__":
 		
 		elif array[0] == input_edge:
 			if not array[3] in gd.get_edge_labels():
-				#~ temp = freq_edge_label[int(array[3])]
 				#~ temp += 1
 				freq_edge_label[int(array[3])] += 1
 			gd.get_edge_labels().append(array[3])
@@ -310,13 +306,19 @@ if __name__ == "__main__":
 	for gd in total_graph_data:
 		gd.remove_infreq_nodes_and_edges(freq_node_label,
 			freq_edge_label, min_support)
-		#~ gd.print_graph_data()
 	#排序并重新标号
 	sort_and_relabel()
 	
-	#  进行子图挖掘
+	#  进行频繁子图挖掘
 	freq_graph_mining()
 	
+	# 结束时间
+	end_time = datetime.datetime.now()
+	
+	print('run time:')
+	print(end_time - start_time)
+	print('total result graph number')
+	print(len(result_graph))
 	
 	
 	

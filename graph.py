@@ -66,7 +66,7 @@ class Graph():
 				self.edge_nexts[gd.edge_y[i]].append(gd.edge_x[i])
 			i += 1
 		
-		self.print_graph()
+		#~ self.print_graph()
 	
 	def has_edge(self, x, a, y):
 		is_contained = False
@@ -77,24 +77,19 @@ class Graph():
 		i = 0
 		while i < len(self.node_labels):
 			if self.node_labels[i] == x:
-				#~ print(self.node_labels[i])
-				#~ pdb.set_trace()
 				t = y
 			elif self.node_labels[i] == y:
 				t = x
 			else:
 				i += 1
 				continue
-			#~ pdb.set_trace()
 			j = 0
 			while j < len(self.edge_labels[i]):
 				if self.edge_labels[i][j] == a and self.node_labels[self.edge_nexts[i][j]]== t:
-					#~ pdb.set_trace()
 					is_contained = True
 					return is_contained
 				j += 1
 			i += 1
-		#~ print('end graph')
 		return is_contained
 		
 		

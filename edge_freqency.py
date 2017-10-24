@@ -30,9 +30,6 @@ class EdgeFreqency():
 		self.node_label_num = node_label_num
 		self.edge_label_num = edge_label_num
 		self.edge_freq_count = []
-		print('self')
-		print(self.node_label_num)
-		print(self.edge_label_num)
 		i = 0
 		j = 0
 		k = 0
@@ -43,7 +40,6 @@ class EdgeFreqency():
 				self.edge_freq_count[i].append([])
 				k = 0
 				while k < self.node_label_num:
-					#~ pdb.set_trace()
 					self.edge_freq_count[i][j].append(0)
 					k += 1
 				j += 1
